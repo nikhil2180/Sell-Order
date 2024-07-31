@@ -1,6 +1,7 @@
 package com.tcs.sellorder;
 
 import java.io.IOException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "sellorder", urlPatterns = { "/sellorder" })
 public class SellOrder extends HttpServlet {
@@ -25,7 +27,11 @@ public class SellOrder extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String maincategory = request.getParameter("maincategory");
+        
+    	HttpSession session=request.getSession();
+    	Integer userid=(Integer) session.getAttribute("userId");
+    	
+    	String maincategory = request.getParameter("maincategory");
         String subcategory = request.getParameter("subcategory");
         String item = request.getParameter("items");     // Corrected parameter name here
         String shade = request.getParameter("shade");
@@ -45,23 +51,24 @@ public class SellOrder extends HttpServlet {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sell_order", "root", "manager");
 
-            PreparedStatement ps = con.prepareStatement("INSERT INTO orders (maincategory, subcategory, item, shade, width_inch, drop_inch, width_mm, drop_mm, operation, area, quantity, rate, amount, tax, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-            ps.setString(1, maincategory);
-            ps.setString(2, subcategory);
-            ps.setString(3, item);
-            ps.setString(4, shade);
-            ps.setFloat(5, winStr != null && !winStr.isEmpty() ? Float.parseFloat(winStr) : 0);
-            ps.setFloat(6, dinStr != null && !dinStr.isEmpty() ? Float.parseFloat(dinStr) : 0);
-            ps.setFloat(7, wimStr != null && !wimStr.isEmpty() ? Float.parseFloat(wimStr) : 0);
-            ps.setFloat(8, dimStr != null && !dimStr.isEmpty() ? Float.parseFloat(dimStr) : 0);
-            ps.setString(9, operation);
-            ps.setInt(10, areaStr != null && !areaStr.isEmpty() ? Integer.parseInt(areaStr) : 0);
-            ps.setInt(11, quantityStr != null && !quantityStr.isEmpty() ? Integer.parseInt(quantityStr) : 0);
-            ps.setFloat(12, rateStr != null && !rateStr.isEmpty() ? Float.parseFloat(rateStr) : 0);
-            ps.setFloat(13, amountStr != null && !amountStr.isEmpty() ? Float.parseFloat(amountStr) : 0);
-            ps.setFloat(14, taxStr != null && !taxStr.isEmpty() ? Float.parseFloat(taxStr) : 0);
-            ps.setFloat(15, totalAmountStr != null && !totalAmountStr.isEmpty() ? Float.parseFloat(totalAmountStr) : 0);
+            PreparedStatement ps = con.prepareStatement("INSERT INTO orders (user_id, maincategory, subcategory, item, shade, width_inch, drop_inch, width_mm, drop_mm, operation, area, quantity, rate, amount, tax, total_amount) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            
+            ps.setInt(1, userid);
+            ps.setString(2, maincategory);
+            ps.setString(3, subcategory);
+            ps.setString(4, item);
+            ps.setString(5, shade);
+            ps.setFloat(6, winStr != null && !winStr.isEmpty() ? Float.parseFloat(winStr) : 0);
+            ps.setFloat(7, dinStr != null && !dinStr.isEmpty() ? Float.parseFloat(dinStr) : 0);
+            ps.setFloat(8, wimStr != null && !wimStr.isEmpty() ? Float.parseFloat(wimStr) : 0);
+            ps.setFloat(9, dimStr != null && !dimStr.isEmpty() ? Float.parseFloat(dimStr) : 0);
+            ps.setString(10, operation);
+            ps.setInt(11, areaStr != null && !areaStr.isEmpty() ? Integer.parseInt(areaStr) : 0);
+            ps.setInt(12, quantityStr != null && !quantityStr.isEmpty() ? Integer.parseInt(quantityStr) : 0);
+            ps.setFloat(13, rateStr != null && !rateStr.isEmpty() ? Float.parseFloat(rateStr) : 0);
+            ps.setFloat(14, amountStr != null && !amountStr.isEmpty() ? Float.parseFloat(amountStr) : 0);
+            ps.setFloat(15, taxStr != null && !taxStr.isEmpty() ? Float.parseFloat(taxStr) : 0);
+            ps.setFloat(16, totalAmountStr != null && !totalAmountStr.isEmpty() ? Float.parseFloat(totalAmountStr) : 0);
 
             int result = ps.executeUpdate();
 
@@ -72,7 +79,8 @@ public class SellOrder extends HttpServlet {
             }
 
             con.close();
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("dashboard.jsp?error=" + e.getMessage());
         }

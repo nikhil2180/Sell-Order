@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-    pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.tcs.sellorder.SellRecord" %>
 <!DOCTYPE html>
@@ -30,8 +29,9 @@
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         width: 100%;
-        max-width: 2000px;
+        max-width: 1200px;
         box-sizing: border-box;
+        overflow-x: auto;
     }
     table {
         width: 100%;
@@ -45,25 +45,40 @@
     th, td {
         padding: 10px;
         text-align: left;
+        white-space: nowrap;
     }
     th {
         background-color: #f2f2f2;
+    }
+    td {
+        background-color: #fff;
+    }
+    tr:nth-child(even) td {
+        background-color: #f9f9f9;
+    }
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+        }
+        th, td {
+            padding: 8px;
+            font-size: 14px;
+        }
     }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>Sell Order Details</h1>
-    <%
-        List<SellRecord> sellRecords = (List<SellRecord>) request.getAttribute("sellRecords");
-        if (sellRecords == null) {
-            out.println("<p>No records found.</p>");
-        } else {
-            out.println("<p>Number of records: " + sellRecords.size() + "</p>");
-        }
-    %>
+    <form action="report" method="get">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" required>
+        <button type="submit" name="action" value="download">Download Report</button>
+    </form>
     <table>
         <tr>
+            <th>Username</th>
+            <th>Mobile</th>
             <th>Main Category</th>
             <th>Sub Category</th>
             <th>Item</th>
@@ -81,10 +96,13 @@
             <th>Total Amount</th>
         </tr>
         <%
-            if (sellRecords != null) {
-                for (SellRecord record : sellRecords) {
+            List<SellRecord> records = (List<SellRecord>) request.getAttribute("sellRecords");
+            if (records != null) {
+                for (SellRecord record : records) {
         %>
         <tr>
+            <td><%= record.getUsername() %></td>
+            <td><%= record.getMobile() %></td>
             <td><%= record.getMaincategory() %></td>
             <td><%= record.getSubcategory() %></td>
             <td><%= record.getItem() %></td>
@@ -109,3 +127,5 @@
 </div>
 </body>
 </html>
+
+

@@ -28,8 +28,13 @@
         border-radius: 10px;
         box-shadow: 0 0 10px rgba(0,0,0,0.1);
         width: 100%;
-        max-width: 400px;
+        max-width: 500px;
         box-sizing: border-box;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333;
     }
     input[type="text"], input[type="number"], select {
         width: calc(100% - 20px);
@@ -39,7 +44,7 @@
         border-radius: 5px;
         box-sizing: border-box;
     }
-    input[type="submit"] {
+    input[type="submit"], .btn {
         width: 100%;
         padding: 10px;
         background: rgb(0, 159, 0);
@@ -47,8 +52,9 @@
         border: none;
         border-radius: 5px;
         cursor: pointer;
+        margin: 10px 0;
     }
-    input[type="submit"]:hover {
+    input[type="submit"]:hover, .btn:hover {
         background: #555;
     }
     .unit-fields {
@@ -163,57 +169,80 @@ function validateForm() {
 <div>
     <h1>Sell Order</h1>
     <form action="sellorder" method="post" onsubmit="return validateForm()">
-        Main Category: 
+        <label for="maincategory">Main Category:</label>
         <select name="maincategory" onchange="fetchSubCategories(this.value)"> 
             <option value="">Select main category</option>
             <option value="Window Blind">Window Blind</option>
             <option value="Motors">Motors</option>
             <option value="Curtain Tracks">Curtain Tracks</option>
             <option value="Wallpaper">Wallpaper</option>
-        </select><br><br>
+        </select>
 
-        Sub Category: 
+        <label for="subcategory">Sub Category:</label>
         <select id="subcategory" name="subcategory" onchange="fetchItems(this.value)">
             <option value="">Select sub category</option>
-        </select><br><br>
+        </select>
         
-        Name of item: 
+        <label for="item">Name of item:</label>
         <select id="item" name="items" onchange="fetchShades(this.value)">
-            <option value="">Select item </option> 
-        </select><br><br>
+            <option value="">Select item</option> 
+        </select>
         
-        Shade: 
+        <label for="shade">Shade:</label>
         <select id="shade" name="shade">
             <option value="">Select shade</option>
-        </select><br><br>
+        </select>
 
-        Select Unit: 
+        <label for="unit">Select Unit:</label>
         <select name="unit" onchange="toggleFields(this.value)">
             <option value="">Select unit</option>
             <option value="inch">Inches</option>
             <option value="mm">Millimeters</option>
-        </select><br><br>
+        </select>
+        
         <div id="inch-fields" class="unit-fields">
-            Width (inch): <input type="text" name="width_inch"><br><br>
-            Drop (inch): <input type="text" name="drop_inch"><br><br>
+            <label for="width_inch">Width (inch):</label>
+            <input type="text" name="width_inch">
+            <label for="drop_inch">Drop (inch):</label> 
+            <input type="text" name="drop_inch">
         </div>
         <div id="mm-fields" class="unit-fields">
-            Width (mm): <input type="text" name="width_mm"><br><br>
-            Drop (mm): <input type="text" name="drop_mm"><br><br>
+            <label for="width_mm">Width (mm):</label>
+            <input type="text" name="width_mm">
+            <label for="drop_mm">Drop (mm):</label>
+            <input type="text" name="drop_mm">
         </div>
-        Operation: 
+
+        <label for="operation">Operation:</label>
         <select name="operation">
             <option value="Left">Left</option>
             <option value="Right">Right</option>
             <option value="Center">Center</option>
-        </select><br><br>
-        Area (Sq. Ft): <input type="text" name="area" placeholder="Enter area"><br><br>
-        Quantity: <input type="text" name="quantity" placeholder="Enter Quantity"><br><br>
-        Rate per GST (%): <input type="text" name="rate"><br><br>
-        Amount: <input type="text" name="amount"><br><br>
-        Tax: <input type="text" name="tax"><br><br>
-        Total Amount: <input type="text" name="total_amount"><br><br>
+        </select>
+
+        <label for="area">Area (Sq. Ft):</label>
+        <input type="text" name="area" placeholder="Enter area">
+        
+        <label for="quantity">Quantity:</label>
+        <input type="text" name="quantity" placeholder="Enter Quantity">
+        
+        <label for="rate">Rate per GST (%):</label>
+        <input type="text" name="rate">
+        
+        <label for="amount">Amount:</label>
+        <input type="text" name="amount">
+        
+        <label for="tax">Tax:</label>
+        <input type="text" name="tax">
+        
+        <label for="total_amount">Total Amount:</label>
+        <input type="text" name="total_amount">
+        
         <input type="submit" value="Submit">
+    </form>
+    
+    <form action="preview" method="get">
+        <button type="submit" name="action" value="download1" class="btn">Preview</button>
     </form>
 </div>
 </body>

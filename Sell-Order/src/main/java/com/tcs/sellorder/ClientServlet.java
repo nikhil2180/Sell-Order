@@ -1,12 +1,6 @@
+// ClientServlet.java
 package com.tcs.sellorder;
 
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,9 +8,16 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import com.tcs.sellorder.SellRecord;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
 
-@WebServlet(name = "client", urlPatterns = { "/client" })
+@WebServlet(name = "client", urlPatterns = { "/client", "/client/api" })
 public class ClientServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
@@ -31,14 +32,14 @@ public class ClientServlet extends HttpServlet {
 
         HttpSession session = request.getSession();
         Integer userId = (Integer) session.getAttribute("userId");
-        String username = (String) session.getAttribute("username");
+        String token = (String) session.getAttribute("token");
 
         System.out.println("Session userId: " + userId);
-        System.out.println("Session username: " + username);
+        System.out.println("Session token: " + token);
 
-        if (userId == null) {
+        if (userId == null || token == null) {
             System.out.println("User is not logged in. Redirecting to login page.");
-            response.sendRedirect("login.jsp?error=You need to login first.");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=You need to login first.");
             return;
         }
 
@@ -47,9 +48,13 @@ public class ClientServlet extends HttpServlet {
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/sell_order", "root", "manager");
 
             System.out.println("Database connection established.");
-
-            PreparedStatement ps = con.prepareStatement("SELECT maincategory, subcategory, item, shade, width_inch, drop_inch, width_mm, drop_mm, operation, area, quantity, rate, amount, tax, total_amount FROM orders");
             
+            // SQL query to join users and orders tables and fetch the required data
+            String sql = "SELECT u.username, u.mobile, o.* " +
+                         "FROM users u " +
+                         "JOIN orders o ON u.id = o.user_id";
+
+            PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -69,19 +74,53 @@ public class ClientServlet extends HttpServlet {
                 record.setAmount(rs.getFloat("amount"));
                 record.setTax(rs.getFloat("tax"));
                 record.setTotalAmount(rs.getFloat("total_amount"));
+                // Set additional user details
+                record.setUsername(rs.getString("username"));
+                record.setMobile(rs.getString("mobile"));
 
                 records.add(record);
             }
 
-            // Debug: Print the number of records retrieved
-            System.out.println("Number of records retrieved: " + records.size());
-            for (SellRecord record : records) {
-                System.out.println(record);
-            }
+            // Check if the request is for the API endpoint
+            String requestUri = request.getRequestURI();
+            if (requestUri.endsWith("/client/api")) {
+                response.setContentType("application/xml");
+                response.setCharacterEncoding("UTF-8");
 
-            request.setAttribute("sellRecords", records);
-            RequestDispatcher dispatcher = request.getRequestDispatcher("client.jsp");
-            dispatcher.forward(request, response);
+                PrintWriter out = response.getWriter();
+                out.println("<SellRecords>");
+
+                for (SellRecord record : records) {
+                    out.println("<SellRecord>");
+                    out.println("<Maincategory>" + record.getMaincategory() + "</Maincategory>");
+                    out.println("<Subcategory>" + record.getSubcategory() + "</Subcategory>");
+                    out.println("<Item>" + record.getItem() + "</Item>");
+                    out.println("<Shade>" + record.getShade() + "</Shade>");
+                    out.println("<WidthInch>" + record.getWidthInch() + "</WidthInch>");
+                    out.println("<DropInch>" + record.getDropInch() + "</DropInch>");
+                    out.println("<WidthMm>" + record.getWidthMm() + "</WidthMm>");
+                    out.println("<DropMm>" + record.getDropMm() + "</DropMm>");
+                    out.println("<Operation>" + record.getOperation() + "</Operation>");
+                    out.println("<Area>" + record.getArea() + "</Area>");
+                    out.println("<Quantity>" + record.getQuantity() + "</Quantity>");
+                    out.println("<Rate>" + record.getRate() + "</Rate>");
+                    out.println("<Amount>" + record.getAmount() + "</Amount>");
+                    out.println("<Tax>" + record.getTax() + "</Tax>");
+                    out.println("<TotalAmount>" + record.getTotalAmount() + "</TotalAmount>");
+                    out.println("<Username>" + record.getUsername() + "</Username>");
+                    out.println("<Mobile>" + record.getMobile() + "</Mobile>");
+                    out.println("</SellRecord>");
+                }
+
+                out.println("</SellRecords>");
+                out.flush();
+                out.close();
+            } 
+            else {
+                request.setAttribute("sellRecords", records);
+                RequestDispatcher dispatcher = request.getRequestDispatcher("client.jsp");
+                dispatcher.forward(request, response);
+            }
 
             con.close();
             System.out.println("Database connection closed.");

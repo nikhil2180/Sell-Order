@@ -25,6 +25,8 @@ public class RegisterServlet extends HttpServlet {
         String lastname = request.getParameter("lastName");
         String username = request.getParameter("username");
         String password = request.getParameter("password");
+        String mobile=request.getParameter("mobile");
+        
 
         Connection con = null; 
         PreparedStatement ps = null;
@@ -33,6 +35,7 @@ public class RegisterServlet extends HttpServlet {
         HttpSession session=request.getSession();
         session.setAttribute("username", username);
         session.setAttribute("password", password);
+        session.setAttribute("mobile", mobile); 
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
@@ -44,29 +47,34 @@ public class RegisterServlet extends HttpServlet {
 
             if (rs.next()) 
             {
+            		
                 response.sendRedirect("register.jsp?error=User already registered. Please log in.");
             } 
             else 
             {
-                ps = con.prepareStatement("INSERT INTO users (first_name, last_name, username, password) VALUES (?,?,?,?)");
+                ps = con.prepareStatement("INSERT INTO users (first_name, last_name, mobile, username, password) VALUES (?,?,?,?,?)");
                 ps.setString(1, firstname);
                 ps.setString(2, lastname);
-                ps.setString(3, username);
-                ps.setString(4, password);
-
+                ps.setString(3, mobile);
+                ps.setString(4, username);
+                ps.setString(5, password);
+                
                 ps.executeUpdate();
                 response.sendRedirect("login.jsp?success=Registration successful. Please log in.");
             }
-            
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             e.printStackTrace();
             response.sendRedirect("register.jsp?error=Registration failed. Please try again.");
-        } finally {
+        } 
+        finally {
             try {
                 if (rs != null) rs.close();
                 if (ps != null) ps.close();
                 if (con != null) con.close();
-            } catch (Exception e) {
+            } 
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }

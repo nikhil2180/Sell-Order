@@ -88,6 +88,9 @@
             <label for="lastName">Last Name:</label>
             <input type="text" id="lastName" name="lastName" required>
             
+            <label for="phone no">Mobile No:</label>
+            <input type="text" id="mobileNo" name="mobile" required>
+            
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
             
